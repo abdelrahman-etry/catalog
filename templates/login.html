@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+    <head>
+            <link rel=stylesheet href="{{ url_for('static', filename='assets/css/bootstrap.min.css') }}">
+			<link rel=stylesheet href="{{ url_for('static', filename='assets/css/bootstrap-theme.min.css') }}">
+			<link rel=stylesheet href="{{ url_for('static', filename='assets/css/fontAwesome.css') }}">
+			<link rel=stylesheet href="{{ url_for('static', filename='assets/css/hero-slider.css') }}">
+			<link rel=stylesheet href="{{ url_for('static', filename='assets/css/owl-carousel.css') }}">
+			<link rel=stylesheet href="{{ url_for('static', filename='assets/css/templatemo-style.css') }}">
+	
+			<link href="https://fonts.googleapis.com/css?family=Spectral:200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i" rel="stylesheet">
+			<link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
+	
+			<script src="{{ url_for('static', filename='assets/js/vendor/modernizr-2.8.3-respond-1.4.2.min.js') }}"></script>
+            <link href='http://fonts.googleapis.com/css?family=Roboto:400,300,700' rel='stylesheet' type='text/css'>
+            
+            <link rel=stylesheet href="{{ url_for('static', filename='styles.css') }}">
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+            <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
+            <script>
+              function start() {
+                gapi.load('auth2', function() {
+                  auth2 = gapi.auth2.init({
+                    client_id: '1094102794226-odt77ll7hcq6dmih5k1r4e2i935jlogi.apps.googleusercontent.com'
+                  });
+                });
+              }
+            </script>
+        <!-- END PRE-REQUISITES FOR GOOGLE SIGN IN -->
+    </head>
+
+
+    <body> 
+        <div class="container">
+            <div class="row" style="text-align: center;">
+                <div class="col-sm-9 col-md-7 col-lg-5 mx-auto" style="margin-left: 25%;margin-top: 25%;">
+                    <div class="card card-signin my-5">
+                        <div class="card-body">
+                            <h5 class="card-title text-center">Sign In</h5>
+                            <hr class="my-4">
+                            Welcome, You can Login Using :
+                            <form class="form-signin">
+                                <div class="row" style="margin-top: 10px;">
+                                    <button class="btn btn-lg btn-google btn-block text-uppercase" id="signinButton" type="button" style="border: unset;padding: 14px;"><i class="fa fa-google mr-2" ></i> Sign in with Google</button>
+                                </div>
+                                <div class="row" style="margin-top: 10px;">
+                                    <button class="btn btn-lg btn-facebook btn-block text-uppercase" type="button" style="border: unset;">
+                                        <fb:login-button scope="public_profile,email" onlogin="sendTokenToServer();">
+                                            <a href='javascript:sendTokenToServer()'>Login with Facebook</a>
+                                        </fb:login-button>
+                                    </button>
+                                </div>
+                                
+                                
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- GOOGLE PLUS SIGN IN BUTTON-->
+        <!-- <button >Google Signin</button> -->
+        <div>
+                <!-- <fb:login-button scope="public_profile,email" onlogin="sendTokenToServer();">
+                    <a href='javascript:sendTokenToServer()'>Login with Facebook</a>
+                </fb:login-button>         -->
+            </div>
+        
+        <!-- <div id="result"></div> -->
+
+        <script>
+            $('#signinButton').click(function() {
+                function signInCallback(authResult){
+                if (authResult['code']){
+                    $('#signinButton').attr('style', 'display: none');
+                    $.ajax({
+                    type: 'POST',
+                    url: '/gconnect?state={{STATE}}',
+                    headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    contentType: 'application/octet-stream; charset=utf-8',
+                    success:function(result){
+                    //   $('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...')
+                            setTimeout(function() {
+                                window.location.href = "/";
+                            }, 2000);
+                    },
+                    processData:false,
+                    data:authResult['code']
+                    });
+                } else{
+                    // handle error
+                    console.log('There was an error: ' + authResult['error']);
+                    $('#result').html('Failed to make a server-side call. Check your configuration and console.');
+                }
+                }
+                auth2.grantOfflineAccess().then(signInCallback);
+            });
+        </script>
+        <!--END GOOGLE PLUS SIGN IN BUTTON -->
+        
+        <!--FACEBOOK SIGN IN -->
+        <script>
+            window.fbAsyncInit = function() {
+                FB.init({
+                    appId      : '493162021466512',
+                    cookie     : true,  // enable cookies to allow the server to access 
+                              // the session
+                    xfbml      : true,  // parse social plugins on this page
+                    version    : 'v2.2' // use version 2.2
+                });
+            };
+        
+            // Load the SDK asynchronously
+            (function(d, s, id) {
+                var js, fjs = d.getElementsByTagName(s)[0];
+                if (d.getElementById(id)) return;
+                js = d.createElement(s); js.id = id;
+                js.src = "//connect.facebook.net/en_US/sdk.js";
+                fjs.parentNode.insertBefore(js, fjs);
+            }(document, 'script', 'facebook-jssdk'));
+        
+            // Here we run a very simple test of the Graph API after login is
+            // successful.  See statusChangeCallback() for when this call is made.
+            function sendTokenToServer() {
+                var access_token = FB.getAuthResponse()['accessToken'];
+                console.log(access_token)
+                console.log('Welcome!  Fetching your information.... ');
+                
+                FB.api('/me', function(response) {
+                    console.log('Successful login for: ' + response.name);
+                    
+                    $.ajax({
+                        type: 'POST',
+                        url: '/fbconnect?state={{STATE}}',
+                        processData: false,
+                        data: access_token,
+                        contentType: 'application/octet-stream; charset=utf-8',
+            
+                        success: function(result) {
+                            // Handle or verify the server response if necessary.
+                            if (result) {
+                                $('#result').html('Login Successful!</br>'+ result + '</br>Redirecting...')
+                                setTimeout(function() {
+                                    window.location.href = "/";
+                                }, 2000);
+                            }else {
+                                $('#result').html('Failed to make a server-side call. Check your configuration and console.');
+                            }
+                        }
+                    });
+                });
+            }
+        </script>
+      
+<!--       
+    <button>   
+        
+    </button> -->
+
+    <!--END FACEBOOK SIGN IN -->
+    </body>
+</html>

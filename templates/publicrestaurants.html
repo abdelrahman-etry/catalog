@@ -1,0 +1,58 @@
+{% extends "main.html" %}
+{% block content %}
+	<!-- <div class="row top-menu">
+		<div class="col-md-10"></div>
+		<div class="col-md-2 text-right">
+			<a href="{{url_for('showLogin')}}">Click Here to Log in </a>
+		</div>
+	</div> -->
+	<div class="row divider blue">
+		<div class="col-md-12"></div>
+	</div>
+
+
+	<div class = 'flash'>
+		      {% with messages = get_flashed_messages() %}
+      {% if messages %}
+          
+        <ul>
+        {% for message in messages %}
+            <li> <strong> {{ message }} </strong> </li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    {% endwith %}
+
+</div>
+
+
+	
+	<div class="row padding-top padding-bottom">
+		<div class="col-md-1"></div>
+		<div class="col-md-10 padding-none"></div>
+		<div class="col-md-1"></div>
+    </div>
+    <div class="row" style="margin-top: 10px;margin-bottom:10px;">
+            {% for restaurant in restaurants %}
+            {% if loop.index0 < 4 %}
+            
+                <div class="col-md-3 restaurant-list" style="margin-top: 10px;">
+                    <a href="{{url_for('showMenu', restaurant_id = restaurant.id)}}">
+                        <div class="card" style="text-align: center;">
+                            <img class="card-img-top" src="{{url_for('static', filename='assets/img/')}}{{loop.index}}.jpg" alt="{{restaurant.name}}">
+                            <div class="card-body">
+                                <h5 class="card-title">{{restaurant.name}}</h5>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+        
+                {% endif %}
+            {% endfor %}
+        </div>
+<div class="row" style="margin-top: 10px;margin-bottom:10px;">
+    <div class="col-md-12" style="text-align: center;">
+        <a href="{{url_for('showAllRestaurants')}}" class="btn btn-primary" style="width: 20%;"> Show All Restaurants </a>
+    </div>
+</div>
+{% endblock %}
